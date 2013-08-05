@@ -523,7 +523,9 @@ char *tptext;
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 #include <assert.h>
 
 #include "simclist.h"
