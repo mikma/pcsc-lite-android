@@ -73,6 +73,7 @@ LOCAL_C_INCLUDES	:= $(common_c_includes)
 LOCAL_PRELINK_MODULE	:= false
 LOCAL_MODULE		:= libpcsclite
 LOCAL_MODULE_TAGS	:= eng
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/src/PCSC
 
 include $(BUILD_SHARED_LIBRARY)
 
