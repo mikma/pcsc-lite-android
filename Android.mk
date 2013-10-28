@@ -19,7 +19,8 @@ common_cflags := \
 	-DANDROID \
 	-DDISABLE_SYSTEMD \
 	-DPCSCD_PATH='"$(PCSCD_PATH)"' \
-	-DHAVE_CONFIG_H
+	-DHAVE_CONFIG_H \
+	-Dmain=pcsc_main \
 
 common_c_includes := \
 	$(LOCAL_PATH) \
