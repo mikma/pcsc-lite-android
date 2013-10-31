@@ -68,7 +68,9 @@ char Add_Interface_In_Name = TRUE;
  */
 static void at_exit(void);
 static void clean_temp_files(void);
+#ifndef ANDROID
 static void signal_reload(int sig);
+#endif
 static void signal_trap(int);
 static void print_version (void);
 static void print_usage (char const * const);
@@ -588,7 +590,9 @@ int main(int argc, char **argv)
 	/*
 	 * Hotplug rescan
 	 */
+#ifndef ANDROID
 	(void)signal(SIGUSR1, signal_reload);
+#endif
 
 	/*
 	 * Initialize the comm structure
@@ -707,6 +711,9 @@ static void clean_temp_files(void)
 			strerror(errno));
 }
 
+
+#ifndef ANDROID
+
 static void signal_reload(/*@unused@*/ int sig)
 {
 	(void)signal(SIGUSR1, signal_reload);
@@ -720,6 +727,18 @@ static void signal_reload(/*@unused@*/ int sig)
 	HPReCheckSerialReaders();
 #endif
 } /* signal_reload */
+
+#else
+
+int SendHotplugSignal(void)
+{
+	if (AraKiri)
+		return;
+
+	HPReCheckSerialReaders();
+}
+#endif  /* ANDROID */
+
 
 static void signal_trap(int sig)
 {

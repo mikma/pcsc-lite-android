@@ -65,6 +65,7 @@ pid_t GetDaemonPid(void)
 	return pid;
 } /* GetDaemonPid */
 
+#ifndef ANDROID
 int SendHotplugSignal(void)
 {
 	pid_t pid;
@@ -85,6 +86,7 @@ int SendHotplugSignal(void)
 
 	return EXIT_SUCCESS;
 } /* SendHotplugSignal */
+#endif
 
 /**
  * Check is OpenCT is running and display a critical message if it is
