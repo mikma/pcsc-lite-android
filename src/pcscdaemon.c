@@ -737,6 +737,13 @@ int SendHotplugSignal(void)
 
 	HPReCheckSerialReaders();
 }
+
+int pcsc_stop(void)
+{
+	/* Simulate SIGTERM */
+	signal_trap(SIGTERM);
+}
+
 #endif  /* ANDROID */
 
 

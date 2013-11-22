@@ -368,6 +368,20 @@ static void HPRescanUsbBus(void)
 			HPRemoveHotPluggable(i);
 	}
 
+	/* count present readers */
+	cnt = 0;
+	for (i=0; i<PCSCLITE_MAX_READERS_CONTEXTS; i++)
+	{
+		if (readerTracker[i].fullName == NULL)
+			cnt++;
+	}
+	if (cnt == 0) {
+		/* FIXME better call path? */
+		/* From pcscdaemon.c */
+		extern int pcsc_stop(void);
+		pcsc_stop();
+	}
+
 	if (AraKiriHotPlug)
 	{
 		int retval;
