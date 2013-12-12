@@ -409,6 +409,15 @@ static void HPEstablishUSBNotifications(int pipefd[2])
 	int r;
 	char c = 42;	/* magic value */
 
+#ifdef ANDROID
+	/* Initialize module global variables */
+	AraKiriHotPlug = FALSE;
+	rescan_pipe[0] = -1;
+	rescan_pipe[1] = -1;
+#endif
+
+	Log1(PCSC_LOG_INFO, "Hotplug started");
+
 	r = libusb_init(ctx);
 	if (r < 0)
 	{

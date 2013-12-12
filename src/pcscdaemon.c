@@ -186,6 +186,18 @@ int main(int argc, char **argv)
 #endif
 #define OPT_STRING "c:fTdhvaeCHt:r:s:xSI"
 
+#ifdef ANDROID
+	/* Initialize module variables */
+	AraKiri = FALSE;
+	Init = TRUE;
+	AutoExit = FALSE;
+	SocketActivated = FALSE;
+	ExitValue = EXIT_FAILURE;
+	HPForceReaderPolling = 0;
+	pipefd[0] = -1;
+	pipefd[1] = -1;
+#endif	/* ANDROID */
+
 	newReaderConfig = NULL;
 	setToForeground = FALSE;
 	HotPlug = FALSE;
