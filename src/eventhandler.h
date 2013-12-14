@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2010
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: eventhandler.h 5434 2010-12-08 14:13:21Z rousseau $
+ * $Id: eventhandler.h 6711 2013-08-05 18:59:56Z rousseau $
  */
 
 /**
@@ -42,6 +42,7 @@
 	LONG EHUnregisterClientForEvent(int32_t filedes);
 	LONG EHSignalEventToClients(void);
 	LONG EHInitializeEventStructures(void);
+	LONG EHDeinitializeEventStructures(void);
 	LONG EHSpawnEventHandler(READER_CONTEXT *);
 	LONG EHDestroyEventHandler(READER_CONTEXT *);
 

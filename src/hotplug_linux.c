@@ -9,7 +9,7 @@
  * The USB code was based partly on Johannes Erdfelt
  * libusb code found at libusb.sourceforge.net
  *
- * $Id: hotplug_linux.c 5993 2011-10-04 07:51:33Z rousseau $
+ * $Id: hotplug_linux.c 6759 2013-10-01 12:57:03Z rousseau $
  */
 
 /**
@@ -183,9 +183,9 @@ static LONG HPReadBundleValues(void)
 #endif
 				listCount++;
 
-				if (listCount >= sizeof(bundleTracker)/sizeof(bundleTracker[0]))
+				if (listCount >= COUNT_OF(bundleTracker))
 				{
-					Log2(PCSC_LOG_CRITICAL, "Too many readers declared. Maximum is %zd", sizeof(bundleTracker)/sizeof(bundleTracker[0]));
+					Log2(PCSC_LOG_CRITICAL, "Too many readers declared. Maximum is %zd", COUNT_OF(bundleTracker));
 					goto end;
 				}
 			}

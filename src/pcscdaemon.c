@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: pcscdaemon.c 6446 2012-08-24 09:07:18Z rousseau $
+ * $Id: pcscdaemon.c 6750 2013-09-12 14:52:08Z rousseau $
  */
 
 /**
@@ -46,6 +46,7 @@
 #include "configfile.h"
 #include "powermgt_generic.h"
 #include "utils.h"
+#include "eventhandler.h"
 
 #ifndef TRUE
 #define TRUE 1
@@ -59,6 +60,8 @@ char SocketActivated = FALSE;
 static int ExitValue = EXIT_FAILURE;
 int HPForceReaderPolling = 0;
 static int pipefd[] = {-1, -1};
+char Add_Serial_In_Name = TRUE;
+char Add_Interface_In_Name = TRUE;
 
 /*
  * Some internal functions
@@ -86,6 +89,21 @@ static void SVCServiceRunLoop(void)
 
 	while (TRUE)
 	{
+		if (AraKiri)
+		{
+			/* stop the hotpug thread and waits its exit */
+#ifdef USE_USB
+			(void)HPStopHotPluggables();
+#endif
+			(void)SYS_Sleep(1);
+
+			/* now stop all the drivers */
+			RFCleanupReaders();
+			EHDeinitializeEventStructures();
+			ContextsDeinitialize();
+			at_exit();
+		}
+
 		switch (rsp = ProcessEventsServer(&dwClientID))
 		{
 
@@ -120,20 +138,6 @@ static void SVCServiceRunLoop(void)
 				rsp);
 			break;
 		}
-
-		if (AraKiri)
-		{
-			/* stop the hotpug thread and waits its exit */
-#ifdef USE_USB
-			(void)HPStopHotPluggables();
-#endif
-			(void)SYS_Sleep(1);
-
-			/* now stop all the drivers */
-			RFCleanupReaders();
-			ContextsDeinitialize();
-			at_exit();
-		}
 	}
 }
 
@@ -149,6 +153,7 @@ int main(int argc, char **argv)
 	int customMaxThreadCardHandles = 0;
 	int opt;
 	int limited_rights = FALSE;
+	int r;
 #ifdef HAVE_GETOPT_LONG
 	int option_index = 0;
 	static struct option long_options[] = {
@@ -168,10 +173,12 @@ int main(int argc, char **argv)
 		{"max-card-handle-per-thread", 1, NULL, 's'},
 		{"max-card-handle-per-reader", 1, NULL, 'r'},
 		{"auto-exit", 0, NULL, 'x'},
+		{"reader-name-no-serial", 0, NULL, 'S'},
+		{"reader-name-no-interface", 0, NULL, 'I'},
 		{NULL, 0, NULL, 0}
 	};
 #endif
-#define OPT_STRING "c:fTdhvaeCHt:r:s:x"
+#define OPT_STRING "c:fTdhvaeCHt:r:s:xSI"
 
 	newReaderConfig = NULL;
 	setToForeground = FALSE;
@@ -303,6 +310,14 @@ int main(int argc, char **argv)
 					TIME_BEFORE_SUICIDE);
 				break;
 
+			case 'S':
+				Add_Serial_In_Name = FALSE;
+				break;
+
+			case 'I':
+				Add_Interface_In_Name = FALSE;
+				break;
+
 			default:
 				print_usage (argv[0]);
 				return EXIT_FAILURE;
@@ -398,7 +413,12 @@ int main(int argc, char **argv)
 
 	/* like in daemon(3): changes the current working directory to the
 	 * root ("/") */
-	(void)chdir("/");
+	r = chdir("/");
+	if (r < 0)
+	{
+		Log2(PCSC_LOG_CRITICAL, "chdir() failed: %s", strerror(errno));
+		return EXIT_FAILURE;
+	}
 
 	/*
 	 * If this is set to one the user has asked it not to fork
@@ -538,9 +558,16 @@ int main(int argc, char **argv)
 		if (f != -1)
 		{
 			char pid[PID_ASCII_SIZE];
+			ssize_t rr;
 
 			(void)snprintf(pid, sizeof(pid), "%u\n", (unsigned) getpid());
-			(void)write(f, pid, strlen(pid));
+			rr = write(f, pid, strlen(pid) + 1);
+			if (rr < 0)
+			{
+				Log2(PCSC_LOG_CRITICAL,
+					"writting " PCSCLITE_RUN_PID " failed: %s",
+					strerror(errno));
+			}
 			(void)close(f);
 
 			/* set mode so that the file is world readable even is umask is
@@ -621,9 +648,14 @@ int main(int argc, char **argv)
 	if (pipefd[1] >= 0)
 	{
 		char buf = 0;
+		ssize_t rr;
 
 		/* write a 0 (success) to father process */
-		write(pipefd[1], &buf, 1);
+		rr = write(pipefd[1], &buf, 1);
+		if (rr < 0)
+		{
+			Log2(PCSC_LOG_ERROR, "write() failed: %s", strerror(errno));
+		}
 		close(pipefd[1]);
 	}
 
@@ -642,10 +674,15 @@ static void at_exit(void)
 	if (pipefd[1] >= 0)
 	{
 		char buf;
+		ssize_t r;
 
 		/* write the error code to father process */
 		buf = ExitValue;
-		write(pipefd[1], &buf, 1);
+		r = write(pipefd[1], &buf, 1);
+		if (r < 0)
+		{
+			Log2(PCSC_LOG_ERROR, "write() failed: %s", strerror(errno));
+		}
 		close(pipefd[1]);
 	}
 
@@ -765,6 +802,8 @@ static void print_usage (char const * const progname)
 	printf("  -s, --max-card-handle-per-thread	maximum number of card handle per thread (default: %d)\n", PCSC_MAX_CONTEXT_CARD_HANDLES);
 	printf("  -r, --max-card-handle-per-reader	maximum number of card handle per reader (default: %d)\n", PCSC_MAX_READER_HANDLES);
 	printf("  -x, --auto-exit	pcscd will quit after %d seconds of inactivity\n", TIME_BEFORE_SUICIDE);
+	printf("  -S, --reader-name-no-serial    do not include the USB serial number in the name\n");
+	printf("  -I, --reader-name-no-interface do not include the USB interface name in the name\n");
 #else
 	printf("  -a    log APDU commands and results\n");
 	printf("  -c	path to reader.conf\n");

@@ -6,7 +6,7 @@
  * Copyright (C) 2004-2010
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: testpcsc.c 5885 2011-08-09 07:49:14Z rousseau $
+ * $Id: testpcsc.c 6700 2013-07-30 13:05:52Z rousseau $
  */
 
 /**
@@ -78,7 +78,7 @@ int main(/*@unused@*/ int argc, /*@unused@*/ char **argv)
 	long rv;
 	DWORD i;
 	int p, iReader;
-	int iList[16];
+	int iList[16] = {0};
 	SCARD_IO_REQUEST ioRecvPci = *SCARD_PCI_T0;	/* use a default value */
 	const SCARD_IO_REQUEST *pioSendPci;
 	unsigned char bSendBuffer[MAX_BUFFER_SIZE];
@@ -185,10 +185,14 @@ wait_for_card_again:
 		do
 		{
 			char input[80];
+			char *r;
 
 			printf("Enter the reader number\t\t: ");
-			(void)fgets(input, sizeof(input), stdin);
-			iReader = atoi(input);
+			r = fgets(input, sizeof(input), stdin);
+			if (NULL == r)
+				iReader = -1;
+			else
+				iReader = atoi(input);
 
 			if (iReader > p || iReader <= 0)
 				printf("Invalid Value - try again\n");

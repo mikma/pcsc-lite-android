@@ -10,7 +10,7 @@
  * Copyright (C) 2003
  *  Antti Tapaninen
  *
- * $Id: hotplug_macosx.c 5868 2011-07-09 11:59:09Z rousseau $
+ * $Id: hotplug_macosx.c 6671 2013-06-27 21:11:43Z rousseau $
  */
 
 /**
@@ -295,8 +295,8 @@ static HPDriverVector HPDriversGetFromDirectory(const char *driverBundlePath)
 			CFStringRef strValue = blobValue;
 
 #ifdef DEBUG_HOTPLUG
-			Log3(PCSC_LOG_DEBUG, "Driver without alias: %s",
-				driverBundle, driverBundle->m_libPath);
+			Log3(PCSC_LOG_DEBUG, "Driver without alias: %s %s",
+				driverBundle->m_friendlyName, driverBundle->m_libPath);
 #endif
 
 			driverBundle->m_vendorId = strtoul(CFStringGetCStringPtr(strValue,
@@ -510,12 +510,20 @@ HPDriversMatchUSBDevices(HPDriverVector driverBundle,
 		kret = (*usbdev)->GetLocationID(usbdev, &usbAddress);
 		(*usbdev)->Release(usbdev);
 
+#ifdef DEBUG_HOTPLUG
+		Log4(PCSC_LOG_DEBUG, "Found USB device 0x%04X:0x%04X at 0x%X",
+			vendorId, productId, usbAddress);
+#endif
 		HPDriver *driver;
 		for (driver = driverBundle; driver->m_vendorId; ++driver)
 		{
 			if ((driver->m_vendorId == vendorId)
 				&& (driver->m_productId == productId))
 			{
+#ifdef DEBUG_HOTPLUG
+				Log4(PCSC_LOG_DEBUG, "Adding USB device %04X:%04X at 0x%X",
+					vendorId, productId, usbAddress);
+#endif
 				*readerList =
 					HPDeviceListInsert(*readerList, driver, usbAddress);
 			}

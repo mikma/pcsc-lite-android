@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: atrhandler.c 5962 2011-09-24 08:24:34Z rousseau $
+ * $Id: atrhandler.c 6701 2013-07-30 13:10:21Z rousseau $
  */
 
 /**
@@ -91,6 +91,11 @@ short ATRDecodeAtr(int *availableProtocols, int *currentProtocol,
 		TBi = (Y1i & 0x02) ? pucAtr[p++] : -1;
 		TCi = (Y1i & 0x04) ? pucAtr[p++] : -1;
 		TDi = (Y1i & 0x08) ? pucAtr[p++] : -1;
+
+		/* We don't use TBi and TCi but we must calculate them because
+		 * of the p++ in the formulae */
+		(void)TBi;
+		(void)TCi;
 
 #ifdef ATR_DEBUG
 		Log9(PCSC_LOG_DEBUG,

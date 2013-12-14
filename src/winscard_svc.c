@@ -10,7 +10,7 @@
  * Copyright (C) 2009
  *  Jean-Luc Giraud <jlgiraud@googlemail.com>
  *
- * $Id: winscard_svc.c 6462 2012-09-13 17:11:32Z rousseau $
+ * $Id: winscard_svc.c 6709 2013-08-05 18:49:31Z rousseau $
  */
 
 /**
@@ -129,6 +129,8 @@ void ContextsDeinitialize(void)
 	listSize = list_size(&contextsList);
 	Log2(PCSC_LOG_DEBUG, "remaining threads: %d", listSize);
 	/* This is currently a no-op. It should terminate the threads properly. */
+
+	list_destroy(&contextsList);
 }
 
 /**
@@ -834,7 +836,7 @@ static LONG MSGAddHandle(SCARDCONTEXT hContext, SCARDHANDLE hCard,
 		/*
 		 * Find an empty spot to put the hCard value
 		 */
-		int listLength, lrv;
+		int listLength;
 
 		(void)pthread_mutex_lock(&threadContext->cardsList_lock);
 
@@ -849,6 +851,8 @@ static LONG MSGAddHandle(SCARDCONTEXT hContext, SCARDHANDLE hCard,
 		}
 		else
 		{
+			int lrv;
+
 			lrv = list_append(&threadContext->cardsList, &hCard);
 			if (lrv < 0)
 			{
@@ -856,7 +860,8 @@ static LONG MSGAddHandle(SCARDCONTEXT hContext, SCARDHANDLE hCard,
 					"list_append failed with return value: %d", lrv);
 				retval = SCARD_E_NO_MEMORY;
 			}
-			retval = SCARD_S_SUCCESS;
+			else
+				retval = SCARD_S_SUCCESS;
 		}
 
 		(void)pthread_mutex_unlock(&threadContext->cardsList_lock);

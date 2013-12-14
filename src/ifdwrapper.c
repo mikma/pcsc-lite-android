@@ -8,7 +8,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: ifdwrapper.c 6315 2012-06-02 13:08:05Z rousseau $
+ * $Id: ifdwrapper.c 6558 2013-03-06 14:12:49Z rousseau $
  */
 
 /**
@@ -46,7 +46,7 @@
 LONG IFDSetPTS(READER_CONTEXT * rContext, DWORD dwProtocol, UCHAR ucFlags,
 	UCHAR ucPTS1, UCHAR ucPTS2, UCHAR ucPTS3)
 {
-	RESPONSECODE rv = IFD_SUCCESS;
+	RESPONSECODE rv;
 
 #ifndef PCSCLITE_STATIC_DRIVER
 	RESPONSECODE(*IFDH_set_protocol_parameters) (DWORD, DWORD, UCHAR,
@@ -141,7 +141,7 @@ LONG IFDOpenIFD(READER_CONTEXT * rContext)
  */
 LONG IFDCloseIFD(READER_CONTEXT * rContext)
 {
-	RESPONSECODE rv = IFD_SUCCESS;
+	RESPONSECODE rv;
 	int repeat;
 
 #ifndef PCSCLITE_STATIC_DRIVER
@@ -183,7 +183,7 @@ again:
 LONG IFDSetCapabilities(READER_CONTEXT * rContext, DWORD dwTag,
 			DWORD dwLength, PUCHAR pucValue)
 {
-	RESPONSECODE rv = IFD_SUCCESS;
+	RESPONSECODE rv;
 
 #ifndef PCSCLITE_STATIC_DRIVER
 	RESPONSECODE(*IFDH_set_capabilities) (DWORD, DWORD, DWORD, PUCHAR) = NULL;
@@ -214,7 +214,7 @@ LONG IFDSetCapabilities(READER_CONTEXT * rContext, DWORD dwTag,
 LONG IFDGetCapabilities(READER_CONTEXT * rContext, DWORD dwTag,
 	PDWORD pdwLength, PUCHAR pucValue)
 {
-	RESPONSECODE rv = IFD_SUCCESS;
+	RESPONSECODE rv;
 
 #ifndef PCSCLITE_STATIC_DRIVER
 	RESPONSECODE(*IFDH_get_capabilities) (DWORD, DWORD, PDWORD, /*@out@*/ PUCHAR) = NULL;
@@ -317,7 +317,7 @@ LONG IFDPowerICC(READER_CONTEXT * rContext, DWORD dwAction,
  */
 LONG IFDStatusICC(READER_CONTEXT * rContext, PDWORD pdwStatus)
 {
-	RESPONSECODE rv = IFD_SUCCESS;
+	RESPONSECODE rv;
 	DWORD dwCardStatus = 0;
 
 #ifndef PCSCLITE_STATIC_DRIVER
@@ -487,7 +487,7 @@ LONG IFDTransmit(READER_CONTEXT * rContext, SCARD_IO_HEADER pioTxPci,
 	PUCHAR pucTxBuffer, DWORD dwTxLength, PUCHAR pucRxBuffer,
 	PDWORD pdwRxLength, PSCARD_IO_HEADER pioRxPci)
 {
-	RESPONSECODE rv = IFD_SUCCESS;
+	RESPONSECODE rv;
 
 #ifndef PCSCLITE_STATIC_DRIVER
 	RESPONSECODE(*IFDH_transmit_to_icc) (DWORD, SCARD_IO_HEADER, PUCHAR,

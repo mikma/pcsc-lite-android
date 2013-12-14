@@ -20,6 +20,9 @@ Specifies the file \fIfile\fP as an alternate location for
 Runs pcscd in the foreground and sends log messages to stderr instead of
 syslog(3).
 .TP
+.BR \-T ", " \-\-color
+force use of colored logs.
+.TP
 .BR \-d ", " \-\-debug
 use the lowest log level. Any log message of this level or above will be
 sent to stderr or syslog(3) depending on the use of
@@ -28,14 +31,34 @@ sent to stderr or syslog(3) depending on the use of
 .B \-\-info
 use info log level. This is the default log level.
 .TP
-.B \-\-error
+.BR \-e ", " \-\-error
 use error log level.
 .TP
-.B \-\-critical
+.BR \-C ", " \-\-critical
 use critical log level.
 .PP
 The log levels are ordered as: debug < info < error < critical. Use a
 log level l will log this level and all the levels above it.
+.TP
+.B --force-reader-polling
+ignore the IFD_GENERATE_HOTPLUG reader capability
+.TP
+.BR \-t ", " \-\-max-thread
+maximum number of threads (default 200).
+
+This is the maximum number of clients (SCardEstablishContext) that pcscd
+can handle.
+.TP
+.BR \-s ", " \-\-max-card-handle-per-thread
+maximum number of card handle per thread (default: 200).
+
+This is the maximum number of card handle (SCardConnect) per client
+(SCardEstablishContext).
+.TP
+.BR \-r ", " \-\-max-card-handle-per-reader
+maximum number of card handle per reader (default: 200)
+
+This is the maximum number of card handle (SCardConnect) per reader.
 .TP
 .BR \-h ", " \-\-help
 Displays information about the pcscd command line

@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: debuglog.c 6445 2012-08-24 08:27:10Z rousseau $
+ * $Id: debuglog.c 6759 2013-10-01 12:57:03Z rousseau $
  */
 
 /**
@@ -229,16 +229,16 @@ void DebugLogSetLogType(const int dbgtype)
 	if ((DEBUGLOG_STDOUT_DEBUG == LogMsgType && isatty(fileno(stdout)))
 		|| (DEBUGLOG_STDOUT_COLOR_DEBUG == LogMsgType))
 	{
-		const char *terms[] = { "linux", "xterm", "xterm-color", "Eterm", "rxvt", "rxvt-unicode", "xterm-256color" };
 		char *term;
 
 		term = getenv("TERM");
 		if (term)
 		{
+			const char *terms[] = { "linux", "xterm", "xterm-color", "Eterm", "rxvt", "rxvt-unicode", "xterm-256color" };
 			unsigned int i;
 
 			/* for each known color terminal */
-			for (i = 0; i < sizeof(terms) / sizeof(terms[0]); i++)
+			for (i = 0; i < COUNT_OF(terms); i++)
 			{
 				/* we found a supported term? */
 				if (0 == strcmp(terms[i], term))

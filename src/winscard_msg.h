@@ -8,7 +8,7 @@
  * Copyright (C) 2002-2010
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: winscard_msg.h 5929 2011-09-03 21:43:21Z rousseau $
+ * $Id: winscard_msg.h 6549 2013-03-04 13:15:44Z rousseau $
  */
 
 /**
@@ -25,7 +25,7 @@
 /** Major version of the current message protocol */
 #define PROTOCOL_VERSION_MAJOR 4
 /** Minor version of the current message protocol */
-#define PROTOCOL_VERSION_MINOR 2
+#define PROTOCOL_VERSION_MINOR 3
 
 	/**
 	 * @brief Information transmitted in \ref CMD_VERSION Messages.

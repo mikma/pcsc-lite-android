@@ -1,6 +1,6 @@
 /*
     Log PC/SC arguments
-    Copyright (C) 2001  Ludovic Rousseau
+    Copyright (C) 2011-2013  Ludovic Rousseau
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* $Id: libpcscspy.c 6382 2012-07-01 16:01:49Z rousseau $ */
+/* $Id: libpcscspy.c 6695 2013-07-30 12:41:23Z rousseau $ */
 
 #include <dlfcn.h>
 #include <stdio.h>
@@ -163,6 +163,7 @@ static void log_line(const char *fmt, ...)
 static void spy_line_direct(char *line)
 {
 	char threadid[30];
+	ssize_t r;
 
 	/* spying disabled */
 	if (Log_fd < 0)
@@ -170,9 +171,10 @@ static void spy_line_direct(char *line)
 
 	snprintf(threadid, sizeof threadid, "%lX@", pthread_self());
 	pthread_mutex_lock(&Log_fd_mutex);
-	write(Log_fd, threadid, strlen(threadid));
-	write(Log_fd, line, strlen(line));
-	write(Log_fd, "\n", 1);
+	r = write(Log_fd, threadid, strlen(threadid));
+	r = write(Log_fd, line, strlen(line));
+	r = write(Log_fd, "\n", 1);
+	(void)r;
 	pthread_mutex_unlock(&Log_fd_mutex);
 }
 
@@ -182,6 +184,7 @@ static void spy_line(const char *fmt, ...)
 	char line[256];
 	int size;
 	char threadid[30];
+	ssize_t r;
 
 	/* spying disabled */
 	if (Log_fd < 0)
@@ -197,9 +200,10 @@ static void spy_line(const char *fmt, ...)
 	}
 	snprintf(threadid, sizeof threadid, "%lX@", pthread_self());
 	pthread_mutex_lock(&Log_fd_mutex);
-	write(Log_fd, threadid, strlen(threadid));
-	write(Log_fd, line, size);
-	write(Log_fd, "\n", 1);
+	r = write(Log_fd, threadid, strlen(threadid));
+	r = write(Log_fd, line, size);
+	r = write(Log_fd, "\n", 1);
+	(void)r;
 	pthread_mutex_unlock(&Log_fd_mutex);
 }
 

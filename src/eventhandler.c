@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: eventhandler.c 6391 2012-07-26 18:44:54Z rousseau $
+ * $Id: eventhandler.c 6711 2013-08-05 18:59:56Z rousseau $
  */
 
 /**
@@ -128,6 +128,14 @@ LONG EHInitializeEventStructures(void)
 	return SCARD_S_SUCCESS;
 }
 
+LONG EHDeinitializeEventStructures(void)
+{
+	list_destroy(&ClientsWaitingForEvent);
+	pthread_mutex_destroy(&ClientsWaitingForEvent_lock);
+
+	return SCARD_S_SUCCESS;
+}
+
 LONG EHDestroyEventHandler(READER_CONTEXT * rContext)
 {
 	int rv;
@@ -222,7 +230,9 @@ static void EHStatusHandlerThread(READER_CONTEXT * rContext)
 	uint32_t readerState;
 	int32_t readerSharing;
 	DWORD dwCurrentState;
+#ifndef DISABLE_AUTO_POWER_ON
 	DWORD dwAtrLen;
+#endif
 
 	/*
 	 * Zero out everything
@@ -350,7 +360,6 @@ static void EHStatusHandlerThread(READER_CONTEXT * rContext)
 				rContext->readerState->readerState = SCARD_PRESENT;
 				rContext->powerState = POWER_STATE_UNPOWERED;
 				Log1(PCSC_LOG_DEBUG, "powerState: POWER_STATE_UNPOWERED");
-				readerState = SCARD_PRESENT;
 				rv = IFD_SUCCESS;
 				Log1(PCSC_LOG_INFO, "Skip card power on");
 #else

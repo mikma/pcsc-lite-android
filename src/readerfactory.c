@@ -10,7 +10,7 @@
  * Copyright (C) 2009
  *  Jean-Luc Giraud <jlgiraud@googlemail.com>
  *
- * $Id: readerfactory.c 6463 2012-09-13 17:16:41Z rousseau $
+ * $Id: readerfactory.c 6748 2013-09-10 18:28:44Z rousseau $
  */
 
 /**
@@ -456,6 +456,12 @@ LONG RFAddReader(const char *readerNameLong, int port, const char *library,
 
 		if (rv == IFD_SUCCESS && dwGetSize == 1 && ucThread[0] == 1)
 		{
+			Log1(PCSC_LOG_INFO, "Driver is slot thread safe");
+
+			sReadersContexts[dwContextB]->library =
+				strdup(sReadersContexts[dwContext]->library);
+			sReadersContexts[dwContextB]->device =
+				strdup(sReadersContexts[dwContext]->device);
 			sReadersContexts[dwContextB]->mMutex =
 				malloc(sizeof(pthread_mutex_t));
 			(void)pthread_mutex_init(sReadersContexts[dwContextB]->mMutex,
@@ -944,9 +950,14 @@ LONG RFUnlockSharing(SCARDHANDLE hCard, READER_CONTEXT * rContext)
 	if (SCARD_S_SUCCESS == rv)
 	{
 		if (rContext->LockCount > 0)
+		{
 			rContext->LockCount -= 1;
-		if (0 == rContext->LockCount)
-			rContext->hLockId = 0;
+			if (0 == rContext->LockCount)
+				rContext->hLockId = 0;
+		}
+		else
+			/* rContext->LockCount == 0 */
+			rv = SCARD_E_NOT_TRANSACTED;
 	}
 	(void)pthread_mutex_unlock(&LockMutex);
 
@@ -1280,8 +1291,18 @@ void RFCleanupReaders(void)
 
 			if (rv != SCARD_S_SUCCESS)
 				Log2(PCSC_LOG_ERROR, "RFRemoveReader error: 0x%08lX", rv);
+
+			free(sReadersContexts[i]);
 		}
 	}
+
+#ifdef USE_SERIAL
+	if (ConfigFile)
+	{
+		free(ConfigFile);
+		ConfigFile = NULL;
+	}
+#endif
 }
 
 /**

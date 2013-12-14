@@ -1,3 +1,629 @@
+2013-10-16  Ludovic Rousseau
+
+	* [r6769] ChangeLog, configure.ac: Release 1.8.9
+
+2013-10-01  Ludovic Rousseau
+
+	* [r6759] src/debug.c, src/debuglog.c, src/hotplug_linux.c: Use the
+	  COUNT_OF macro
+	* [r6758] src/misc.h: Add COUNT_OF macro
+	  
+	  This macro returns the number of elements in an array.
+	  
+	  See http://stackoverflow.com/questions/1598773
+
+2013-09-12  Ludovic Rousseau
+
+	* [r6750] src/hotplug_libudev.c, src/hotplug_libusb.c,
+	  src/pcscdaemon.c: Add support of --reader-name-no-serial and
+	  --reader-name-no-interface
+	  
+	  It is now possible to NOT add the USB serial number of the reader
+	  using --reader-name-no-serial
+	  
+	  It is now possible to NOT add the CCID interface name of the
+	  reader using --reader-name-no-interface
+	  
+	  See also "What is in a PC/SC reader name?"
+	  http://ludovicrousseau.blogspot.fr/2010/05/what-is-in-pcsc-reader-name.html
+	  
+	  Closes Alioth bug [#314338] Add an option to remove serial number
+	  and interface name from the PC/CS reader name
+	  https://alioth.debian.org/tracker/index.php?func=detail&aid=314338&group_id=30105&atid=410088
+
+2013-09-10  Ludovic Rousseau
+
+	* [r6749] UnitaryTests/SCardEndTransaction_extra_call.py: Unitary
+	  test for the correction in revision 6748
+	  
+	  SCardEndTransaction() should return SCARD_E_NOT_TRANSACTED if
+	  called more times than SCardBeginTransaction()
+	* [r6748] src/readerfactory.c, src/winscard.c: Return an error if
+	  SCardEndTransaction() is called with no corresponding
+	  SCardBeginTransaction()
+	  
+	  This is done in two steps: - RFUnlockSharing() returns an error
+	  if a reader is unlocked when it was not (or no more) previously
+	  locked - SCardEndTransaction() checks the value returned by
+	  RFUnlockSharing() and returns an error if RFUnlockSharing()
+	  failed
+	  
+	  Thanks to Markus Heintel for the initial patch
+
+2013-08-26  Ludovic Rousseau
+
+	* [r6744] doc/pcscd.8.in: Document --max-thread,
+	  --max-card-handle-per-thread and --max-card-handle-per-reader
+	  
+	  Closes bug [#314308] "Document --max-thread,
+	  --max-card-handle-per-thread and --max-card-handle-per-reader in
+	  pcscd(8)"
+	* [r6743] doc/pcscd.8.in: Document --force-reader-polling
+	* [r6742] doc/pcscd.8.in: Document short options -e, --error and
+	  -C, --critical
+	* [r6741] doc/pcscd.8.in: Add documentation for -T, --color
+
+2013-08-23  Ludovic Rousseau
+
+	* [r6734] src/winscard_clnt.c: Fix a memory leak in case of error
+	  
+	  When SCARD_AUTOALLOCATE is used we check the parameter is valid
+	  and return in case it is not _before_ calling malloc.
+	  
+	  Detected by "clang --analyze" winscard_clnt.c:1566:9: warning:
+	  Potential leak of memory pointed to by 'bufReader' rv =
+	  SCARD_E_INVALID_PARAMETER; ^~~~~~~~~~~~~~~~~~~~~~~~~
+	  
+	  winscard_clnt.c:1594:9: warning: Potential leak of memory pointed
+	  to by 'bufAtr' rv = SCARD_E_INVALID_PARAMETER;
+	  ^~~~~~~~~~~~~~~~~~~~~~~~~
+	  
+	  winscard_clnt.c:3141:9: warning: Potential leak of memory pointed
+	  to by 'buf' rv = SCARD_E_INVALID_PARAMETER;
+	  ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+2013-08-12  Ludovic Rousseau
+
+	* [r6727] src/utils/formaticc.c: Display SCardTransmit() error code
+	  (if any)
+	* [r6726] src/utils/formaticc.c: Allow comments starting with #
+	* [r6725] src/utils/formaticc.c: Display APDU sent and data
+	  received
+	* [r6724] src/utils/formaticc.c: Add more error code management
+	* [r6723] src/utils/formaticc.c: Mac OS X port
+
+2013-08-07  Ludovic Rousseau
+
+	* [r6719] src/configfile.l: Fix compiler warning
+	  
+	  configfile.l: In function ‘evaluatetoken’: configfile.l:186:
+	  warning: initialization discards qualifiers from pointer target
+	  type
+
+2013-08-05  Ludovic Rousseau
+
+	* [r6712] src/configfile.l, src/tokenparser.l: Fix memory leak
+	  
+	  Call yylex_destroy() after the lexer is used.
+	  
+	  Thanks to Alan Kozlay for the patch
+	* [r6711] src/eventhandler.c, src/eventhandler.h, src/pcscdaemon.c:
+	  Create and use EHDeinitializeEventStructures(): fix memory leak
+	  
+	  The structures allocated in EHInitializeEventStructures() were
+	  never released.
+	  
+	  Thanks to Alan Kozlay for the patch
+	* [r6710] src/pcscdaemon.c: SVCServiceRunLoop(): be able to quit
+	  earlier
+	  
+	  The daemon is now able to quit (test the arakiri flag) even
+	  before SVCServiceRunLoop() has been called.
+	  
+	  Thanks to Alan Kozlay for the patch
+	* [r6709] src/winscard_svc.c: ContextsDeinitialize(): fix a memory
+	  leak
+	  
+	  Thanks to Alan Kozlay for the patch
+	* [r6708] src/readerfactory.c: RFCleanupReaders(): fix a memory
+	  leak
+	  
+	  Free the ConfigFile C-string if needed
+	  
+	  Thanks to Alan Kozlay for the patch
+	* [r6707] src/readerfactory.c: RFCleanupReaders(): fix a memory
+	  leak
+	  
+	  The sReadersContexts[i] structure allocated in
+	  RFAllocateReaderSpace() was never released on exit.
+	  
+	  This is not really a problem unless you embedd pcscd in another
+	  process and do init/deinit pcscd without exiting the process (as
+	  maybe used on Android or iOS).
+	  
+	  Thanks to Alan Kozlay for the patch
+
+2013-08-01  Ludovic Rousseau
+
+	* [r6703] src/configfile.l: Fix memory leaks
+	  
+	  Free the malloc-ed strings.
+	  
+	  The strings are only allocated _once_ when the config files in
+	  /etc/reader.conf.d/ are parsed. This is not really a problem
+	  unless you embedd pcscd in another process and do init/deinit
+	  pcscd without exiting the process (as maybe used on Android or
+	  iOS).
+	  
+	  Thanks to Alan Kozlay for the patch
+
+2013-07-31  Ludovic Rousseau
+
+	* [r6702] src/pcscdaemon.c: Fix compiler warnings
+	  
+	  pcscdaemon.c: In function ‘main’: pcscdaemon.c:547:12: attention
+	  : declaration of ‘r’ shadows a previous local [-Wshadow]
+	  pcscdaemon.c:152:6: attention : shadowed declaration is here
+	  [-Wshadow] pcscdaemon.c:637:11: attention : declaration of ‘r’
+	  shadows a previous local [-Wshadow] pcscdaemon.c:152:6: attention
+	  : shadowed declaration is here [-Wshadow]
+
+2013-07-30  Ludovic Rousseau
+
+	* [r6701] src/atrhandler.c: Fix compiler warning
+	  
+	  atrhandler.c: In function ‘ATRDecodeAtr’: atrhandler.c:88:19:
+	  warning: variable ‘TCi’ set but not used
+	  [-Wunused-but-set-variable] atrhandler.c:88:14: warning: variable
+	  ‘TBi’ set but not used [-Wunused-but-set-variable]
+	  
+	  We don't use TBi and TCi but we must calculate them because of
+	  the p++ in the formulae.
+	  
+	  See revision 5808 to know why these values are important.
+	* [r6700] src/testpcsc.c: Check returned value of fgets(3)
+	  
+	  Fix compiler warning: testpcsc.c: In function ‘main’:
+	  testpcsc.c:190:4: warning: ignoring return value of ‘fgets’,
+	  declared with attribute warn_unused_result [-Wunused-result]
+	* [r6699] src/pcscdaemon.c: Check returned value of write(2) on
+	  synchronization socket
+	  
+	  Fix compiler warnings: pcscdaemon.c: In function ‘main’:
+	  pcscdaemon.c:639:3: warning: ignoring return value of ‘write’,
+	  declared with attribute warn_unused_result [-Wunused-result]
+	  pcscdaemon.c: In function ‘at_exit’: pcscdaemon.c:661:3: warning:
+	  ignoring return value of ‘write’, declared with attribute
+	  warn_unused_result [-Wunused-result]
+	* [r6698] src/pcscdaemon.c: Check returned value from chdir(2)
+	  
+	  Fix compiler warning: pcscdaemon.c: In function ‘main’:
+	  pcscdaemon.c:401:2: warning: ignoring return value of ‘chdir’,
+	  declared with attribute warn_unused_result [-Wunused-result]
+	* [r6697] src/pcscdaemon.c: Add the terminating \0 in pcscd.pid
+	  file
+	* [r6696] src/pcscdaemon.c, src/utils.c: Check read(2) and write(2)
+	  returned value for pcscd.pid file
+	  
+	  Fix compiler warnings: utils.c: In function `GetDaemonPid':
+	  utils.c:45:3: warning: ignoring return value of `read', declared
+	  with attribute warn_unused_result [-Wunused-result] pcscdaemon.c:
+	  In function ‘main’: pcscdaemon.c:543:4: warning: ignoring return
+	  value of ‘write’, declared with attribute warn_unused_result
+	  [-Wunused-result]
+	* [r6695] src/spy/libpcscspy.c: Ignore the write(2) returned value
+	  
+	  Using (void)write(...) is not enough to fool the compiler. I
+	  still get: libpcscspy.c: In function `spy_line':
+	  libpcscspy.c:200:2: warning: ignoring return value of `write',
+	  declared with attribute warn_unused_result [-Wunused-result]
+	  libpcscspy.c:201:2: warning: ignoring return value of `write',
+	  declared with attribute warn_unused_result [-Wunused-result]
+	  libpcscspy.c:202:2: warning: ignoring return value of `write',
+	  declared with attribute warn_unused_result [-Wunused-result]
+	  libpcscspy.c: In function `spy_line_direct': libpcscspy.c:173:2:
+	  warning: ignoring return value of `write', declared with
+	  attribute warn_unused_result [-Wunused-result]
+	  libpcscspy.c:174:2: warning: ignoring return value of `write',
+	  declared with attribute warn_unused_result [-Wunused-result]
+	  libpcscspy.c:175:2: warning: ignoring return value of `write',
+	  declared with attribute warn_unused_result [-Wunused-result]
+	  
+	  The new code now uses: ssize_t r; r = write(...) (void)r;
+	* [r6694] src/spy/libpcscspy.c: Update Copyright date
+
+2013-07-01  Ludovic Rousseau
+
+	* [r6680] src/winscard_clnt.c: Do not use pthread_atfork() any more
+	  
+	  pthread_atfork() was used to invalidate all the handles after a
+	  fork. The problem is that the handler function was still called
+	  after the libpcsclite library was unloaded on FreeBSD. This
+	  caused a crash of the application.
+	  
+	  The invalidation of the handles is not mandatory. After a fork
+	  the application may still use the PC/SC handles and may get a
+	  SCARD_F_COMM_ERROR error if the handle has been closed and in the
+	  pcscd logs: winscard_svc.c:908:MSGCheckHandleAssociation() Client
+	  failed to authenticate
+	  
+	  Closes Alioth bug [#314078] Do not use pthread_atfork() in a
+	  library
+	  https://alioth.debian.org/tracker/index.php?func=detail&aid=314078&group_id=30105&atid=410085
+
+2013-06-27  Ludovic Rousseau
+
+	* [r6671] src/hotplug_macosx.c: Fix compiler warning
+	  
+	  hotplug_macosx.c:298: warning: format ‘%s’ expects type ‘char *’,
+	  but argument 6 has type ‘struct HPDriver *’ hotplug_macosx.c:298:
+	  warning: too many arguments for format
+	* [r6670] src/hotplug_macosx.c: List found USB devices (when in
+	  debug mode)
+
+2013-06-25  Ludovic Rousseau
+
+	* [r6669] UnitaryTests/SCard_fork.py: Fix copy-paster in log
+	  message
+	* [r6668] src/readerfactory.c: RFAddReader(): correctly manage
+	  thread safe multi-slot readers
+	  
+	  If the driver declares it is TAG_IFD_SLOT_THREAD_SAFE then pcscd
+	  can access each slots simultanously.
+	  
+	  In this case some data must be duplicated at RFAddReader() step
+	  since they will be destroyed at the removeReader() step.
+	  
+	  Thanks to Frank Morgner for the bug report Closes Alioth bug
+	  [#314315] "double free corruption when unloading serial driver
+	  with multiple slots"
+
+2013-06-18  Ludovic Rousseau
+
+	* [r6663] configure.ac, src/libpcsclite.pc.in: Add support of
+	  serialconfdir pkg-config variable
+	  
+	  It is now possible to use pkg-config to get the directory used by
+	  pcscd to fetch serial drivers configurations.
+	  
+	  $ pkg-config libpcsclite --variable=serialconfdir
+	  /etc/reader.conf.d
+	  
+	  Closes alioth bug [#314300] Add pkg-config confdir option Thanks
+	  to Frank Morgner for the idea
+
+2013-06-10  Ludovic Rousseau
+
+	* [r6654] src/winscard.c: SCardGetAttrib(): Add support of
+	  SCARD_ATTR_DEVICE_SYSTEM_NAME
+	  
+	  Thanks to Rafael Ugalde Beriain
+	* [r6653] src/winscard.c: SCardGetAttrib(): Fix bug in
+	  SCARD_ATTR_DEVICE_FRIENDLY_NAME
+	  
+	  Affect the real length _after_ checking the buffer is large
+	  enough.
+	  
+	  Thanks to Rafael Ugalde Beriain for the bug report.
+
+2013-06-06  Ludovic Rousseau
+
+	* [r6649] src/spy/pcsc-spy: Fix PEP8 warnings
+	  
+	  E128 continuation line under-indented for visual indent
+	* [r6648] src/spy/pcsc-spy: Fix PEP8 warning
+	  
+	  pcsc-spy:34:13: E128 continuation line under-indented for visual
+	  indent
+	* [r6647] src/spy/pcsc-spy: Add SCARD_ATTR_DEVICE_SYSTEM_NAME
+	  
+	  Add _A and _W versions
+
+2013-05-30  Ludovic Rousseau
+
+	* [r6639] src/winscard_clnt.c: Unlock the mutex if hCard has been
+	  invalidated by SCardDisconnect()
+	  
+	  SCardBeginTransaction() was not correctly releasing a mutex when
+	  the hCard handle was invalidated. The problem is that hCard can
+	  be invalidated by: - SCardReleaseContext and all the context is
+	  invalid - SCardDisconnect and only the hCard is invalid, not the
+	  mutex
+	  
+	  The problem was that SCardGetStatusChange() was blocked because
+	  SCardBeginTransaction() had not released the context mutex.
+	  
+	  Thanks to Fredrik Axelsson for the bug report
+	  https://bugzilla.redhat.com/show_bug.cgi?id=956530
+
+2013-05-28  Ludovic Rousseau
+
+	* [r6638] src/PCSC/reader.h: Use C99 flexible array member
+	  
+	  The structures PIN_MODIFY_STRUCTURE and PIN_VERIFY_STRUCTURE now
+	  use a C99 flexible array member when available for abData field.
+	  
+	  uint8_t abData[];
+
+2013-05-27  Ludovic Rousseau
+
+	* [r6637] src/winscard_clnt.c: mMutex is now directly inside the
+	  _psContextMap structure and no more a pointer
+	  
+	  The mutex was dynamically allocated at runtime using malloc(3)
+	  and referenced using a pointer. This was introduced in revision
+	  572 (Dec 2003) by Damien Sauveron.
+	  
+	  Using a direct pthread_mutex_t structure will save memory (one
+	  pointer removed per context), improve performances (one
+	  malloc/free removed) and make the code safer (one malloc failure
+	  removed).
+
+2013-05-08  Ludovic Rousseau
+
+	* [r6625] src/pcscdaemon.c: Explicitely ignore write() return value
+	  
+	  pcscdaemon.c:626:3: warning: ignoring return value of function
+	  declared with warn_unused_result attribute [-Wunused-result]
+	  write(pipefd[1], &buf, 1); ^~~~~ ~~~~~~~~~~~~~~~~~~
+	  pcscdaemon.c:648:3: warning: ignoring return value of function
+	  declared with warn_unused_result attribute [-Wunused-result]
+	  write(pipefd[1], &buf, 1); ^~~~~ ~~~~~~~~~~~~~~~~~~ 2 warnings
+	  generated.
+	  
+	  We don't have much to do if write() on the interprocess pipe
+	  fails.
+
+2013-05-05  Ludovic Rousseau
+
+	* [r6621] src/hotplug_libudev.c: Fix a memory leak in case of error
+	  
+	  Coverity: leaked_storage: Variable "hpDir" going out of scope
+	  leaks the storage it points to.
+
+2013-03-29  Ludovic Rousseau
+
+	* [r6582] src/spy/pcsc-spy: Try to display the thread in the order
+	  they appear in the log
+	  
+	  The idea is to schedule another thread when a thread change is
+	  detected in the log. Then the other threads should have time to
+	  empty their queues and display what they have to display. The
+	  order is then respected between the logs recorded and the logs
+	  displayed.
+	* [r6581] src/spy/pcsc-spy: Check the first line format
+	  
+	  This could happen if the trace file first lines are removed.
+	* [r6580] src/Makefile.am: Do not explicitly include the .in files
+	  in Makefile.am
+	  
+	  These files are automatically included.
+	  
+	  Thanks to Anthony Foiani for the patch
+	  http://sourceforge.net/mailarchive/message.php?msg_id=30653233
+	* [r6579] src/spy/Makefile.am: Use $(srcdir) to locate pcsc-spy.pod
+	  
+	  Without the patch it is not possible to build pcsc-lite out of
+	  the source tree like:
+	  
+	  mkdir build cd build ../configure make
+	  
+	  Thanks to Anthony Foiani for the bug report
+	  http://sourceforge.net/mailarchive/message.php?msg_id=30653233
+
+2013-03-16  Ludovic Rousseau
+
+	* [r6574] src/spy/Makefile.am: $^ not supported on FreeBSD make
+	* [r6573] src/spy/Makefile.am: Do not use GNU make extension
+	  
+	  src/spy/Makefile.am:11: `%'-style pattern rules are a GNU make
+	  extension
+	  
+	  Thanks to Martin Paljak for the patch
+	  http://lists.alioth.debian.org/pipermail/pcsclite-muscle/Week-of-Mon-20130311/000016.html
+	* [r6572] configure.ac, src/Makefile.am, src/spy/Makefile.am: Fix
+	  OpenBSD 5.2 compilation regarding dlopen
+	  
+	  1) dlopen search in configure.ac, as guided in [1]. Removes this
+	  warning: * Warning: linker path does not have real file for
+	  library -ldl. * I have the capability to make that library
+	  automatically link in when * you link to this library. But I can
+	  only do this if you have a * shared version of the library, which
+	  you do not appear to have * because I did check the linker path
+	  looking for a file starting * with libdl but no candidates were
+	  found. (...for regex pattern test) * The inter-library
+	  dependencies that have been dropped here will be * automatically
+	  added whenever a program is linked with this library * or is
+	  declared to -dlopen it.
+	  
+	  [1]
+	  http://www.flameeyes.eu/autotools-mythbuster/autoconf/finding.html
+	  
+	  Thanks to Martin Paljak for the patch
+	  http://lists.alioth.debian.org/pipermail/pcsclite-muscle/Week-of-Mon-20130311/000016.html
+
+2013-03-06  Ludovic Rousseau
+
+	* [r6558] src/ifdwrapper.c: cppcheck: Variable 'rv' is reassigned a
+	  value before the old one has been used.
+	  
+	  This is a (minor) performance issue. I guess the compiler can
+	  optimize the code as needed.
+	* [r6557] src/hotplug_libusb.c: cppcheck: The scope of the variable
+	  'fullname' can be reduced.
+	* [r6556] src/hotplug_libusb.c: cppcheck: The scope of the variable
+	  'serialNumber' can be reduced.
+	* [r6555] src/winscard_svc.c: cppcheck: The scope of the variable
+	  'lrv' can be reduced.
+	* [r6554] src/utils/formaticc.c: cppcheck: Resource leak: fp
+	  
+	  Same problem with FILE descriptor fo
+	* [r6553] src/eventhandler.c: cppcheck: Variable 'readerState' is
+	  assigned a value that is never used.
+	* [r6552] src/eventhandler.c: cppcheck: Unused variable: dwAtrLen
+	  
+	  dwAtrLen is used only if DISABLE_AUTO_POWER_ON is not set
+	  (default case)
+	* [r6551] src/debug.c, src/debuglog.c: cppcheck: The scope of the
+	  variable 'terms' can be reduced.
+	* [r6550] UnitaryTests/BufferOverflow.c: cppcheck: The scope of the
+	  variable 'i' can be reduced.
+
+2013-03-04  Ludovic Rousseau
+
+	* [r6549] src/winscard_msg.h: Update PROTOCOL_VERSION_MINOR from 2
+	  to 3
+	  
+	  We broke the API between version 1.8.3 and 1.8.4 by changing the
+	  value of MAX_READERNAME.
+	  
+	  This change should have been made before releasing version 1.8.4
+	  to make mix of versions clearly non working instead of failing
+	  with strange errors.
+	  
+	  This may be the source of the bug reported at
+	  http://archives.neohapsis.com/archives/dev/muscle/2012-q3/0065.html
+
+2013-02-19  Ludovic Rousseau
+
+	* [r6536] src/winscard.c: Remove duplicated line found by
+	  scan-build(1)
+	  
+	  Assigned value is always the same as the existing value
+	  
+	  The same line is also present in the case (rv == SCARD_S_SUCCESS)
+	* [r6535] src/winscard_svc.c: Fix a bug reported by scan-build(1)
+	  
+	  Value stored to 'retval' is never read
+	  
+	  An else statement was missing
+	* [r6534] src/testpcsc.c: Initialize iList[] to fix a error
+	  reported by scan-build(1)
+	  
+	  scan-build(1) from clang reported a problem that iList[iReader]
+	  migth be used uninitialized.
+
+2013-02-13  Ludovic Rousseau
+
+	* [r6527] UnitaryTests/SCard_fork.py: Add some debug logs
+
+2013-01-28  Ludovic Rousseau
+
+	* [r6519] src/hotplug_libudev.c: Check the Info.plist file is (a
+	  minimum) correct
+	  
+	  The number of products, manufacturers and reader names should be
+	  the same. Otherwise the Info.plist file is corrupted and bad
+	  things may happen, like a crash of pcscd.
+	  
+	  Thanks to Nikita Bige for the bug report
+	  https://bugzilla.redhat.com/show_bug.cgi?id=904932
+
+2013-01-21  Ludovic Rousseau
+
+	* [r6511] src/spy/libpcscspy.c: Explicitly ignore the result of
+	  write(2)
+	  
+	  Even if write(2) fails the show must go on. The spy log may get
+	  corrupted but we can't do much better.
+
+2013-01-16  Ludovic Rousseau
+
+	* [r6505] ChangeLog, configure.ac: Release 1.8.8
+	* [r6504] src/tokenparser.l: Convert all the &amp; in &, not just
+	  the first occurence
+	  
+	  Reader names may use more than one "&" character.
+	* [r6503] src/tokenparser.l: Correctly terminate reader names
+	  containing a & sign
+	  
+	  The & is a &amp; in the Info.plist XML file and converted back to
+	  & by the Lexer. Unfortunately the string was not correctly
+	  terminated and the 4 last characters of the reader name were
+	  duplicated.
+	  
+	  Thanks to Philippe Teuwen for the bug report.
+
+2013-01-15  Ludovic Rousseau
+
+	* [r6502] src/tokenparser.l: Fix a typo in comment
+	* [r6501] src/configfile.l: Correctly calculate the FRIENDLYNAME
+	  field string size
+	  
+	  If the FRIENDLYNAME field is NOT delimited by " then the string
+	  length was wrong and a buffer overflow occured.
+	  
+	  Thanks to Alan Kozlay for the bug report and patch
+	* [r6500] src/configfile.l: Move the variable declaration near
+	  there use site
+	  
+	  Also - change the type from int to size_t for strlen() results -
+	  initialize the values in the for() loop
+
+2012-11-28  Ludovic Rousseau
+
+	* [r6490] ChangeLog, configure.ac: Release 1.8.7
+	* [r6489] ChangeLog: Fix typos
+
+2012-10-22  Ludovic Rousseau
+
+	* [r6477] .: Ignore some new files
+	  
+	  svn propedit svn:ignore .
+	* [r6476] etc, m4, src/spy: Ignore some new files
+	  
+	  svn propedit svn:ignore .
+
+2012-10-04  Ludovic Rousseau
+
+	* [r6468] configure.ac, configure.in: Rename configure.in in
+	  configure.ac
+	  
+	  aclocal: warning: autoconf input should be named 'configure.ac',
+	  not 'configure.in'
+
+2012-09-13  Ludovic Rousseau
+
+	* [r6463] src/readerfactory.c: FCreateReaderHandle(): unref a
+	  reader when needed
+	  
+	  We should call UNREF_READER() only if RFReaderInfoById() returned
+	  with success. Fix a bug introduced in revision 6459.
+	* [r6462] src/winscard_svc.c: MSGRemoveContext(): Unref the reader
+	  
+	  RFReaderInfoById() is called and implicitely increase the reader
+	  reference count. So we shall call UNREF_READER() before exiting.
+	* [r6461] src/readerfactory.c: RFCreateReaderHandle(): reorganize
+	  code
+	  
+	  Move a variable declaration to the inner block using the
+	  variable.
+	* [r6460] src/readerfactory.c: Remove extra ;
+	  
+	  UNREF_READER() is a { } block in a macro
+	* [r6459] src/readerfactory.c: RFCreateReaderHandle(): Unref the
+	  reader is the handle is already used
+	  
+	  The function RFCreateReaderHandle() checks if a handle is already
+	  used by calling RFReaderInfoById() to find the associated reader.
+	  
+	  So if RFReaderInfoById() returns with success then the handle is
+	  valid and can't be used. A new random handle must be generated.
+	  
+	  But since RFReaderInfoById() called REF_READER() internally we
+	  must call UNREF_READER() to decrement the reference counter.
+	* [r6458] src/readerfactory.h: Make hLockId field volatile
+	  
+	  The ReaderContext structure is accessed from different pcscd
+	  threads. To prevent the compiler to optimise read access to the
+	  hLockId field we make it volatile.
+	  
+	  That may be the source of a problem when a reader is removed but
+	  pcscd do not behave correctly.
+	  
+	  Thanks to Torsten Hilbrich for the idea.
+	  http://archives.neohapsis.com/archives/dev/muscle/2012-q3/0086.html
+
 2012-08-30  Ludovic Rousseau
 
 	* [r6451] Makefile.am, configure.in, m4/acx_pthread.m4,

@@ -4,7 +4,7 @@
  * Copyright (C) 2006-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: utils.c 5711 2011-05-05 09:02:08Z rousseau $
+ * $Id: utils.c 6696 2013-07-30 12:55:15Z rousseau $
  */
 
 /**
@@ -41,11 +41,19 @@ pid_t GetDaemonPid(void)
 	if (fd >= 0)
 	{
 		char pid_ascii[PID_ASCII_SIZE];
+		ssize_t r;
 
-		(void)read(fd, pid_ascii, PID_ASCII_SIZE);
+		r = read(fd, pid_ascii, sizeof pid_ascii);
+		if (r < 0)
+		{
+			Log2(PCSC_LOG_CRITICAL, "Reading " PCSCLITE_RUN_PID " failed: %s",
+				strerror(errno));
+			pid = -1;
+		}
+		else
+			pid = atoi(pid_ascii);
 		(void)close(fd);
 
-		pid = atoi(pid_ascii);
 	}
 	else
 	{

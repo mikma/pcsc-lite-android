@@ -4,7 +4,7 @@
  * Copyright (C) 2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: hotplug_libudev.c 6380 2012-06-29 14:18:31Z rousseau $
+ * $Id: hotplug_libudev.c 6750 2013-09-12 14:52:08Z rousseau $
  */
 
 /**
@@ -31,11 +31,12 @@
 #include "strlcpycat.h"
 
 #undef DEBUG_HOTPLUG
-#define ADD_SERIAL_NUMBER
-#define ADD_INTERFACE_NAME
 
 #define FALSE			0
 #define TRUE			1
+
+extern char Add_Interface_In_Name;
+extern char Add_Serial_In_Name;
 
 pthread_mutex_t usbNotifierMutex;
 
@@ -151,6 +152,14 @@ static LONG HPReadBundleValues(void)
 			GET_KEY(PCSCLITE_HP_MANUKEY_NAME, &manuIDs)
 			GET_KEY(PCSCLITE_HP_PRODKEY_NAME, &productIDs)
 			GET_KEY(PCSCLITE_HP_NAMEKEY_NAME, &readerNames)
+
+			if  ((list_size(manuIDs) != list_size(productIDs))
+				|| (list_size(manuIDs) != list_size(readerNames)))
+			{
+				Log2(PCSC_LOG_CRITICAL, "Error parsing %s", fullPath);
+				(void)closedir(hpDir);
+				return -1;
+			}
 
 			/* Get CFBundleName */
 			rv = LTPBundleFindValueWithKey(&plist, PCSCLITE_HP_CFBUNDLE_NAME,
@@ -339,13 +348,11 @@ static void HPAddDevice(struct udev_device *dev, struct udev_device *parent,
 		return;
 	}
 
-#ifdef ADD_INTERFACE_NAME
-	sInterfaceName = udev_device_get_sysattr_value(dev, "interface");
-#endif
+	if (Add_Interface_In_Name)
+		sInterfaceName = udev_device_get_sysattr_value(dev, "interface");
 
-#ifdef ADD_SERIAL_NUMBER
-	sSerialNumber = udev_device_get_sysattr_value(parent, "serial");
-#endif
+	if (Add_Serial_In_Name)
+		sSerialNumber = udev_device_get_sysattr_value(parent, "serial");
 
 	/* name from the Info.plist file */
 	strlcpy(fullname, driver->readerName, sizeof(fullname));

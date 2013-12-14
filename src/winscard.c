@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: winscard.c 6391 2012-07-26 18:44:54Z rousseau $
+ * $Id: winscard.c 6748 2013-09-10 18:28:44Z rousseau $
  */
 
 /**
@@ -568,7 +568,6 @@ LONG SCardReconnect(SCARDHANDLE hCard, DWORD dwShareMode,
 			rv = IFDPowerICC(rContext, IFD_POWER_UP,
 				rContext->readerState->cardAtr, &dwAtrLen);
 		}
-		rContext->readerState->cardAtrLength = dwAtrLen;
 
 		/* the protocol is unset after a power on */
 		rContext->readerState->cardProtocol = SCARD_PROTOCOL_UNDEFINED;
@@ -1091,6 +1090,7 @@ exit:
 LONG SCardEndTransaction(SCARDHANDLE hCard, DWORD dwDisposition)
 {
 	LONG rv;
+	LONG rv2;
 	READER_CONTEXT * rContext = NULL;
 
 	/*
@@ -1214,7 +1214,13 @@ LONG SCardEndTransaction(SCARDHANDLE hCard, DWORD dwDisposition)
 	/*
 	 * Unlock any blocks on this context
 	 */
-	(void)RFUnlockSharing(hCard, rContext);
+	/* we do not want to lose the previous rv value
+	 * So we use another variable */
+	rv2 = RFUnlockSharing(hCard, rContext);
+	if (rv2 != SCARD_S_SUCCESS)
+		/* if rv is already in error then do not change its value */
+		if (rv == SCARD_S_SUCCESS)
+			rv = rv2;
 
 	Log2(PCSC_LOG_DEBUG, "Status: 0x%08lX", rv);
 
@@ -1391,20 +1397,20 @@ LONG SCardGetAttrib(SCARDHANDLE hCard, DWORD dwAttrId,
 			/* Special case SCARD_ATTR_DEVICE_FRIENDLY_NAME as it is better
 			 * implemented in pcscd (it knows the friendly name)
 			 */
-			if (dwAttrId == SCARD_ATTR_DEVICE_FRIENDLY_NAME)
+			if ((SCARD_ATTR_DEVICE_FRIENDLY_NAME == dwAttrId)
+				|| (SCARD_ATTR_DEVICE_SYSTEM_NAME == dwAttrId))
 			{
 				unsigned int len = strlen(rContext->readerState->readerName)+1;
 
-				*pcbAttrLen = len;
 				if (len > *pcbAttrLen)
 					rv = SCARD_E_INSUFFICIENT_BUFFER;
 				else
 				{
 					(void)strlcpy((char *)pbAttr,
-						rContext->readerState->readerName, *pcbAttrLen);
+						rContext->readerState->readerName, len);
 					rv = SCARD_S_SUCCESS;
 				}
-
+				*pcbAttrLen = len;
 			}
 			else
 				rv = SCARD_E_UNSUPPORTED_FEATURE;
