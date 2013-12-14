@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: pcscdaemon.c 6750 2013-09-12 14:52:08Z rousseau $
+ * $Id: pcscdaemon.c 6778 2013-10-19 16:32:38Z rousseau $
  */
 
 /**
@@ -565,7 +565,7 @@ int main(int argc, char **argv)
 			if (rr < 0)
 			{
 				Log2(PCSC_LOG_CRITICAL,
-					"writting " PCSCLITE_RUN_PID " failed: %s",
+					"writing " PCSCLITE_RUN_PID " failed: %s",
 					strerror(errno));
 			}
 			(void)close(f);

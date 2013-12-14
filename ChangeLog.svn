@@ -1,3 +1,31 @@
+2013-10-19  Ludovic Rousseau
+
+	* [r6779] ChangeLog, configure.ac: Release 1.8.10
+	* [r6778] src/pcscdaemon.c: Fix typo in log message
+
+2013-10-18  Ludovic Rousseau
+
+	* [r6775]
+	  UnitaryTests/FEATURE_CCID_ESC_COMMAND_Gemalto_features.py:
+	  Display the reader name, Pid and Vid
+	* [r6773]
+	  UnitaryTests/FEATURE_CCID_ESC_COMMAND_Gemalto_features.py: Update
+	  the error message if FEATURE_CCID_ESC_COMMAND is not available
+	* [r6772]
+	  UnitaryTests/FEATURE_CCID_ESC_COMMAND_Gemalto_features.py: Add
+	  more feature parsing
+
+2013-10-17  Ludovic Rousseau
+
+	* [r6771] src/debug.c: Do not export log_msg() symbol
+	  
+	  PCSC_API must be undefined so that log_msg() declaration in
+	  PCSC/debuglog.h is not external but internal.
+	  
+	  Fix alioth bug [#314494] log_msg should NOT be exported by
+	  libpscslite.so.1
+	  https://alioth.debian.org/tracker/index.php?func=detail&aid=314494&group_id=30105&atid=410085
+
 2013-10-16  Ludovic Rousseau
 
 	* [r6769] ChangeLog, configure.ac: Release 1.8.9

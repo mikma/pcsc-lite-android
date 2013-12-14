@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: debug.c 6759 2013-10-01 12:57:03Z rousseau $
+ * $Id: debug.c 6771 2013-10-17 13:02:41Z rousseau $
  */
 
 /**
@@ -22,6 +22,8 @@
 #include <string.h>
 #include <stdio.h>
 
+/* We shall not export the log_msg() sumbol */
+#undef PCSC_API
 #include "debuglog.h"
 #include "strlcpycat.h"
 
