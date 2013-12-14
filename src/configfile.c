@@ -480,7 +480,7 @@ char *yytext;
  * Copyright (C) 2004-2010
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: configfile.l 6215 2012-02-04 09:08:36Z rousseau $
+ * $Id: configfile.l 6501 2013-01-15 19:28:04Z rousseau $
  */
 #line 17 "configfile.l"
 #include <dirent.h>
@@ -1795,10 +1795,6 @@ void yyfree (void * ptr )
 
 int evaluatetoken(char *pcToken)
 {
-	int channelId = 0;
-	int p = 0;
-	unsigned int n = 0;
-
 	if (pcPrevious == NULL)
 	{	/* This is the key */
 		pcPrevious = strdup(pcToken);
@@ -1820,8 +1816,10 @@ int evaluatetoken(char *pcToken)
 		{
 			if (pcFriendlyname == NULL)
 			{
-				pcFriendlyname = malloc(strlen(pcCurrent) - 1);
-				for (n = 0; n < strlen(pcCurrent); n++)
+				size_t n, p;
+
+				pcFriendlyname = malloc(strlen(pcCurrent) + 1);
+				for (n = 0, p = 0; n < strlen(pcCurrent); n++)
 				{
 					if (pcCurrent[n] != '"')
 					{	/* Strip off the quotes */
@@ -1910,6 +1908,8 @@ int evaluatetoken(char *pcToken)
 	if (pcFriendlyname != NULL &&
 		pcLibpath != NULL && pcChannelid != NULL && badError != 1)
 	{
+		int channelId;
+
 		if (0 == reader_list_size)
 		{
 			/* one real reader and one end marker */
