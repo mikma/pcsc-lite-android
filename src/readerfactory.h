@@ -6,7 +6,7 @@
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: readerfactory.h 6397 2012-08-02 14:23:26Z rousseau $
+ * $Id: readerfactory.h 6458 2012-09-13 15:35:12Z rousseau $
  */
 
 /**
@@ -102,7 +102,7 @@
 		int version;			/**< IFD Handler version number */
 		int port;				/**< Port ID */
 		int slot;				/**< Current Reader Slot */
-		SCARDHANDLE hLockId;	/**< Lock Id */
+		volatile SCARDHANDLE hLockId;	/**< Lock Id */
 		int LockCount;			/**< number of recursive locks */
 		int32_t contexts;		/**< Number of open contexts */
 		int * pFeeds;			/**< Number of shared client to lib */

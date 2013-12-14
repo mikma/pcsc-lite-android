@@ -10,7 +10,7 @@
  * Copyright (C) 2009
  *  Jean-Luc Giraud <jlgiraud@googlemail.com>
  *
- * $Id: readerfactory.c 6447 2012-08-24 15:39:52Z rousseau $
+ * $Id: readerfactory.c 6463 2012-09-13 17:16:41Z rousseau $
  */
 
 /**
@@ -1054,13 +1054,14 @@ LONG RFUnInitializeReader(READER_CONTEXT * rContext)
 SCARDHANDLE RFCreateReaderHandle(READER_CONTEXT * rContext)
 {
 	SCARDHANDLE randHandle;
-	READER_CONTEXT *dummy_reader;
 	LONG ret;
 
 	(void)rContext;
 
 	do
 	{
+		READER_CONTEXT *dummy_reader;
+
 		/* Create a random handle with 32 bits check to see if it already is
 		 * used. */
 		/* FIXME: THIS IS NOT STRONG ENOUGH: A 128-bit token should be
@@ -1070,6 +1071,8 @@ SCARDHANDLE RFCreateReaderHandle(READER_CONTEXT * rContext)
 
 		/* do we already use this hCard somewhere? */
 		ret = RFReaderInfoById(randHandle, &dummy_reader);
+		if (SCARD_S_SUCCESS == ret)
+			UNREF_READER(dummy_reader)
 	}
 	while (SCARD_S_SUCCESS == ret);
 

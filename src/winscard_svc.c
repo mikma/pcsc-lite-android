@@ -10,7 +10,7 @@
  * Copyright (C) 2009
  *  Jean-Luc Giraud <jlgiraud@googlemail.com>
  *
- * $Id: winscard_svc.c 6444 2012-08-24 08:10:23Z rousseau $
+ * $Id: winscard_svc.c 6462 2012-09-13 17:11:32Z rousseau $
  */
 
 /**
@@ -811,6 +811,8 @@ static LONG MSGRemoveContext(SCARDCONTEXT hContext, SCONTEXT * threadContext)
 		if (lrv < 0)
 			Log2(PCSC_LOG_CRITICAL,
 				"list_delete_at failed with return value: %d", lrv);
+
+		UNREF_READER(rContext)
 	}
 	(void)pthread_mutex_unlock(&threadContext->cardsList_lock);
 	list_destroy(&threadContext->cardsList);
