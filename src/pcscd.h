@@ -23,11 +23,12 @@
 #define SCARD_INSERTED			0x0002	/**< Card was inserted */
 #define SCARD_REMOVED			0x0004	/**< Card was removed */
 
-#define PCSCLITE_CONFIG_DIR		"/etc/reader.conf.d"
+#define PCSCLITE_CONFIG_DIR		PCSCD_PATH "/etc"
 
 #define PCSCLITE_IPC_DIR		USE_IPCDIR
 #define PCSCLITE_RUN_PID		PCSCLITE_IPC_DIR "/pcscd.pid"
 
+#define PCSCLITE_READER_CONFIG		PCSCLITE_CONFIG_DIR "/reader.conf"
 #define PCSCLITE_CSOCK_NAME		PCSCLITE_IPC_DIR "/pcscd.comm"
 
 #define PCSCLITE_VERSION_NUMBER		"1.8.10"	/**< Current version */
