@@ -25,7 +25,6 @@ common_c_includes := \
 	$(LOCAL_PATH) \
 	$(LOCAL_PATH)/src/PCSC \
 	$(LOCAL_PATH)/src \
-	$(LOCAL_PATH)/../libusb-1.0.3/libusb
 
 # ============ build libpcsclite.a ====================================
 
@@ -119,7 +118,7 @@ LOCAL_SHARED_LIBRARIES := libcrypto libusb libccid
 LOCAL_PRELINK_MODULE	:= false
 LOCAL_MODULE		:= pcscd
 LOCAL_MODULE_TAGS	:= eng
-include $(BUILD_EXECUTABLE)
+include $(BUILD_SHARED_LIBRARY)
 
 
 # ============ build testpcsc ==========================================
@@ -142,3 +141,4 @@ LOCAL_MODULE		:= testpcsc
 include $(BUILD_EXECUTABLE)
 
 
+$(call import-module,libusb)
