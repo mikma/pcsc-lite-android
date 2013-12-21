@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -43,7 +43,7 @@
 #include <stddef.h>
 #include <limits.h>
 
-#if defined(__linux__)
+#if defined(__linux__) && !defined(DISABLE_SYSTEMD)
 #include <mqueue.h>
 #endif
 
@@ -379,7 +379,7 @@ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *p
 }
 
 _sd_export_ int sd_is_mq(int fd, const char *path) {
-#if !defined(__linux__)
+#if defined(DISABLE_SYSTEMD) || !defined(__linux__)
         return 0;
 #else
         struct mq_attr attr;
