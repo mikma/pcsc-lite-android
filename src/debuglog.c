@@ -27,6 +27,9 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <time.h>
+#ifdef ANDROID
+#include <android/log.h>
+#endif
 
 #include "pcsclite.h"
 #include "misc.h"
@@ -93,6 +96,36 @@ static signed char LogDoColor = 0;	/**< no color by default */
 
 static void log_line(const int priority, const char *DebugBuffer);
 
+#ifndef ANDROID
+#define LOG_PRINTF(PRIO, FMT, DELTA, MSG) printf(FMT, DELTA, MSG)
+#else
+#define LOG_PRINTF log_printf_android
+
+#define TAG "pcscd"
+static int log_printf_android(int priority, const char *format, ...)
+{
+	int android_prio = ANDROID_LOG_UNKNOWN;
+	va_list ap;
+	va_start(ap, format);
+
+        switch(priority) {
+        case PCSC_LOG_DEBUG:
+          android_prio = ANDROID_LOG_DEBUG; break;
+        case PCSC_LOG_INFO:
+          android_prio = ANDROID_LOG_INFO; break;
+        case PCSC_LOG_ERROR:
+          android_prio = ANDROID_LOG_ERROR; break;
+        case PCSC_LOG_CRITICAL:
+          android_prio = ANDROID_LOG_FATAL; break;
+        default:
+          android_prio = ANDROID_LOG_VERBOSE; break;
+        }
+
+	return __android_log_vprint(android_prio, TAG, format, ap);
+}
+#endif
+
+
 void log_msg(const int priority, const char *fmt, ...)
 {
 	char DebugBuffer[DEBUG_BUF_SIZE];
@@ -138,6 +171,7 @@ static void log_line(const int priority, const char *DebugBuffer)
 
 		last_time = new_time;
 
+#ifndef ANDROID
 		if (LogDoColor)
 		{
 			const char *color_pfx = "", *color_sfx = "\33[0m";
@@ -167,10 +201,13 @@ static void log_line(const int priority, const char *DebugBuffer)
 				color_pfx, DebugBuffer, color_sfx);
 		}
 		else
+#endif
 		{
-			printf("%.8d %s\n", delta, DebugBuffer);
+			LOG_PRINTF(priority, "%.8d %s\n", delta, DebugBuffer);
 		}
+#ifndef ANDROID
 		fflush(stdout);
+#endif
 	}
 } /* log_msg */
 

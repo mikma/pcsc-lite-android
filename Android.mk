@@ -115,7 +115,7 @@ LOCAL_C_INCLUDES	:= $(common_c_includes)
 LOCAL_CFLAGS		:= $(common_cflags) \
 	-DPCSCD \
 	-DSIMCLIST_NO_DUMPRESTORE
-LOCAL_LDLIBS		:= -ldl
+LOCAL_LDLIBS		:= -llog -ldl
 LOCAL_SHARED_LIBRARIES := libcrypto libusb libccid
 LOCAL_PRELINK_MODULE	:= false
 LOCAL_MODULE		:= pcscd
