@@ -93,6 +93,7 @@ static void SVCServiceRunLoop(void)
 	{
 		if (AraKiri)
 		{
+			Log1(PCSC_LOG_INFO, "AraKiri received");
 			/* stop the hotpug thread and waits its exit */
 #ifdef USE_USB
 			(void)HPStopHotPluggables();
@@ -104,6 +105,9 @@ static void SVCServiceRunLoop(void)
 			EHDeinitializeEventStructures();
 			ContextsDeinitialize();
 			at_exit();
+#ifdef ANDROID
+			return;
+#endif
 		}
 
 		switch (rsp = ProcessEventsServer(&dwClientID))
@@ -519,8 +523,10 @@ int main(int argc, char **argv)
 	 * Allocate memory for reader structures
 	 */
 	rv = RFAllocateReaderSpace(customMaxReaderHandles);
-	if (SCARD_S_SUCCESS != rv)
+	if (SCARD_S_SUCCESS != rv) {
 		at_exit();
+		return ExitValue;
+        }
 
 #ifdef USE_SERIAL
 	/*
@@ -534,13 +540,17 @@ int main(int argc, char **argv)
 			Log3(PCSC_LOG_CRITICAL, "invalid file %s: %s", newReaderConfig,
 				strerror(errno));
 			at_exit();
+			return ExitValue;
 		}
 	}
 	else
 	{
 		rv = RFStartSerialReaders(PCSCLITE_CONFIG_DIR);
 		if (rv == -1)
+		{
 			at_exit();
+			return ExitValue;
+		}
 	}
 #endif
 
@@ -606,6 +616,7 @@ int main(int argc, char **argv)
 	{
 		Log1(PCSC_LOG_CRITICAL, "Error initializing pcscd.");
 		at_exit();
+		return ExitValue;
 	}
 
 	/*
@@ -617,6 +628,7 @@ int main(int argc, char **argv)
 	{
 		Log1(PCSC_LOG_CRITICAL, "Error initializing pcscd.");
 		at_exit();
+		return ExitValue;
 	}
 
 	(void)signal(SIGPIPE, SIG_IGN);
@@ -630,7 +642,10 @@ int main(int argc, char **argv)
 	rv = HPSearchHotPluggables();
 #ifndef USE_SERIAL
 	if (rv)
+	{
 		at_exit();
+		return ExitValue;
+	}
 #endif
 
 	rv = HPRegisterForHotplugEvents();
@@ -638,6 +653,7 @@ int main(int argc, char **argv)
 	{
 		Log1(PCSC_LOG_ERROR, "HPRegisterForHotplugEvents failed");
 		at_exit();
+		return ExitValue;
 	}
 
 	RFWaitForReaderInit();
@@ -690,7 +706,9 @@ static void at_exit(void)
 		close(pipefd[1]);
 	}
 
+#ifndef ANDROID
 	exit(ExitValue);
+#endif
 }
 
 static void clean_temp_files(void)
@@ -740,8 +758,8 @@ int SendHotplugSignal(void)
 
 int pcsc_stop(void)
 {
-	/* Simulate SIGTERM */
-	signal_trap(SIGTERM);
+	/* Simulate signal */
+	signal_trap(0);
 }
 
 #endif  /* ANDROID */
@@ -757,6 +775,7 @@ static void signal_trap(int sig)
 	{
 		Log1(PCSC_LOG_INFO, "Direct suicide");
 		at_exit();
+		return;
 	}
 
 	if (SIGALRM == sig)
@@ -770,6 +789,7 @@ static void signal_trap(int sig)
 	{
 		Log1(PCSC_LOG_INFO, "Preparing for suicide");
 		AraKiri = TRUE;
+		StopEventServer();
 
 		/* if still in the init/loading phase the AraKiri will not be
 		 * seen by the main event loop
@@ -778,6 +798,7 @@ static void signal_trap(int sig)
 		{
 			Log1(PCSC_LOG_INFO, "Suicide during init");
 			at_exit();
+			return;
 		}
 	}
 	else
@@ -791,6 +812,7 @@ static void signal_trap(int sig)
 		{
 			Log1(PCSC_LOG_INFO, "Forced suicide");
 			at_exit();
+			return;
 		}
 	}
 }

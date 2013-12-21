@@ -50,6 +50,9 @@
 static int commonSocket = 0;
 extern char AraKiri;
 
+static char AraKiriEventServer = 0;
+static int stop_pipe[] = { -1, -1 };
+
 /**
  * @brief Accepts a Client connection.
  *
@@ -185,6 +188,7 @@ INTERNAL int32_t ProcessEventsServer(uint32_t *pdwClientID)
 {
 	fd_set read_fd;
 	int selret;
+	int maxFd;
 #ifdef DO_TIMEOUT
 	struct timeval tv;
 
@@ -192,14 +196,40 @@ INTERNAL int32_t ProcessEventsServer(uint32_t *pdwClientID)
 	tv.tv_usec = 0;
 #endif
 
+	if (stop_pipe[0] == -1 || stop_pipe[1] == -1)
+	{
+		if (stop_pipe[0] != -1)
+		{
+			close(stop_pipe[0]);
+			stop_pipe[0] = -1;
+		}
+
+		if (stop_pipe[1] != -1)
+		{
+			close(stop_pipe[1]);
+			stop_pipe[1] = -1;
+		}
+
+		if (pipe(stop_pipe) == -1)
+		{
+			Log2(PCSC_LOG_CRITICAL, "pipe() failed: %s", strerror(errno));
+			return -1;
+		}
+	}
+
 	FD_ZERO(&read_fd);
 
 	/*
 	 * Set up the bit masks for select
 	 */
 	FD_SET(commonSocket, &read_fd);
+	FD_SET(stop_pipe[0], &read_fd);
 
-	selret = select(commonSocket + 1, &read_fd, (fd_set *) NULL,
+	maxFd = commonSocket;
+	if (stop_pipe[0] > maxFd)
+		maxFd = stop_pipe[0];
+
+	selret = select(maxFd + 1, &read_fd, (fd_set *) NULL,
 		(fd_set *) NULL,
 #ifdef DO_TIMEOUT
 		&tv
@@ -225,7 +255,16 @@ INTERNAL int32_t ProcessEventsServer(uint32_t *pdwClientID)
 	/*
 	 * A common pipe packet has arrived - it could be a new application
 	 */
-	if (FD_ISSET(commonSocket, &read_fd))
+	if (FD_ISSET(stop_pipe[0], &read_fd))
+	{
+		Log1(PCSC_LOG_DEBUG, "Stop event arrival");
+		/* Signal timeout */
+
+		close(stop_pipe[0]);
+		stop_pipe[0] = -1;
+		return 2;
+	}
+	else if (FD_ISSET(commonSocket, &read_fd))
 	{
 		Log1(PCSC_LOG_DEBUG, "Common channel packet arrival");
 		if (ProcessCommonChannelRequest(pdwClientID) == -1)
@@ -244,3 +283,19 @@ INTERNAL int32_t ProcessEventsServer(uint32_t *pdwClientID)
 	return 0;
 }
 
+
+LONG StopEventServer(void)
+{
+	AraKiriEventServer = 1;
+
+	if (stop_pipe[1] >= 0)
+	{
+		char dummy = 0;
+		Log1(PCSC_LOG_INFO, "Wake up event server");
+		write(stop_pipe[1], &dummy, sizeof(dummy));
+		close(stop_pipe[1]);
+		stop_pipe[1] = -1;
+	}
+
+	return 0;
+}

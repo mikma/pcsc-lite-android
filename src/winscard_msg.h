@@ -254,6 +254,7 @@
 	int32_t InitializeSocket(void);
 	int32_t ListenExistingSocket(int fd);
 	int32_t ProcessEventsServer(/*@out@*/ uint32_t *);
+	int32_t StopEventsServer(void);
 #else
 	char *getSocketName(void);
 	int32_t ClientSetupSession(uint32_t *);
