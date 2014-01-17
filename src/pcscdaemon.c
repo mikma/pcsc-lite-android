@@ -693,7 +693,7 @@ int main(int argc, char **argv)
 
 	SVCServiceRunLoop();
 
-	Log1(PCSC_LOG_ERROR, "SVCServiceRunLoop returned");
+	Log1(PCSC_LOG_DEBUG, "SVCServiceRunLoop returned");
 	return EXIT_FAILURE;
 }
 
