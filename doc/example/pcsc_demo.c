@@ -1,7 +1,7 @@
 /*
  * Sample program to use PC/SC API.
  *
- * MUSCLE SmartCard Development ( http://www.linuxnet.com )
+ * MUSCLE SmartCard Development ( http://pcsclite.alioth.debian.org/pcsclite.html )
  *
  * Copyright (C) 2003-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * $Id: pcsc_demo.c 6003 2011-10-05 13:22:23Z rousseau $
+ * $Id: pcsc_demo.c 6851 2014-02-14 15:43:32Z rousseau $
  */
 
 #include <stdio.h>

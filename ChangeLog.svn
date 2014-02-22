@@ -1,3 +1,126 @@
+2014-02-14  Ludovic Rousseau
+
+	* [r6853] ChangeLog, configure.ac: Release 1.8.11
+	* [r6852] HELP: Replace old linuxnet.com domaine name
+	  
+	  Mailing list moved from sclinux@linuxnet.com to
+	  muscle@lists.musclecard.com
+	* [r6851] AUTHORS, COPYING, DRIVERS, README,
+	  UnitaryTests/BufferOverflow.c, doc/example/pcsc_demo.c,
+	  src/PCSC/debuglog.h, src/PCSC/ifdhandler.h,
+	  src/PCSC/pcsclite.h.in, src/PCSC/reader.h, src/PCSC/winscard.h,
+	  src/PCSC/wintypes.h, src/atrhandler.c, src/atrhandler.h,
+	  src/auth.c, src/auth.h, src/configfile.h, src/configfile.l,
+	  src/debug.c, src/debuglog.c, src/dyn_generic.h, src/dyn_hpux.c,
+	  src/dyn_macosx.c, src/dyn_unix.c, src/error.c,
+	  src/eventhandler.c, src/eventhandler.h, src/hotplug.h,
+	  src/hotplug_generic.c, src/hotplug_libudev.c,
+	  src/hotplug_libusb.c, src/hotplug_linux.c, src/hotplug_macosx.c,
+	  src/ifdwrapper.c, src/ifdwrapper.h, src/misc.h, src/parser.h,
+	  src/pcscd.h.in, src/pcscdaemon.c, src/powermgt_generic.c,
+	  src/powermgt_generic.h, src/prothandler.c, src/prothandler.h,
+	  src/readerfactory.c, src/readerfactory.h, src/strlcpycat.h,
+	  src/sys_generic.h, src/sys_unix.c, src/testpcsc.c,
+	  src/tokenparser.l, src/utils.c, src/utils.h, src/utils/README,
+	  src/utils/formaticc.c, src/utils/installifd.c, src/winscard.c,
+	  src/winscard_clnt.c, src/winscard_msg.c, src/winscard_msg.h,
+	  src/winscard_msg_srv.c, src/winscard_svc.c, src/winscard_svc.h:
+	  Replace old linuxnet.com domaine name
+	  
+	  web site moved from http://www.linuxnet.com to
+	  http://pcsclite.alioth.debian.org/pcsclite.html
+	  
+	  David email moved tom corcoran@linuxnet.com to
+	  David Corcoran@musclecard.com
+	* [r6850] src/auth.c, src/auth.h: Fix Muscle URL
+
+2014-02-11  Ludovic Rousseau
+
+	* [r6842] configure.ac, doc/Makefile.am, doc/README.polkit,
+	  doc/org.debian.pcsc-lite.policy, src/Makefile.am, src/auth.c,
+	  src/auth.h, src/winscard_svc.c: Add polkit support
+	  
+	  See doc/README.polkit
+	  
+	  Thanks to Nikos Mavrogiannopoulos for the patch
+	  http://archives.neohapsis.com/archives/dev/muscle/2013-q4/0097.html
+	* [r6841] src/winscard_svc.c: SCARD_CONNECT: force a NUL byte to
+	  terminate the reader name
+	  
+	  The client part may send us anything. So we must enfore the
+	  reader name is a NUL-byte terminated C-string.
+	  
+	  Thanks to Nikos Mavrogiannopoulos for the patch
+
+2014-02-08  Ludovic Rousseau
+
+	* [r6838] src/spy/pcsc-spy.pod: Reformat for a better HTML output
+
+2014-01-13  Ludovic Rousseau
+
+	* [r6822] src/PCSC/debuglog.h, src/PCSC/ifdhandler.h,
+	  src/PCSC/pcsclite.h.in, src/PCSC/reader.h, src/PCSC/winscard.h,
+	  src/PCSC/wintypes.h, src/atrhandler.c, src/atrhandler.h,
+	  src/configfile.h, src/configfile.l, src/debug.c, src/debuglog.c,
+	  src/dyn_generic.h, src/dyn_hpux.c, src/dyn_macosx.c,
+	  src/dyn_unix.c, src/error.c, src/eventhandler.c,
+	  src/eventhandler.h, src/hotplug.h, src/hotplug_generic.c,
+	  src/hotplug_libudev.c, src/hotplug_libusb.c, src/hotplug_linux.c,
+	  src/hotplug_macosx.c, src/ifdwrapper.c, src/ifdwrapper.h,
+	  src/lassert.h, src/misc.h, src/parser.h,
+	  src/pcsc-wirecheck-gen.c, src/pcscdaemon.c,
+	  src/powermgt_generic.c, src/powermgt_generic.h,
+	  src/prothandler.c, src/prothandler.h, src/readerfactory.c,
+	  src/readerfactory.h, src/strlcpycat.h, src/sys_generic.h,
+	  src/sys_unix.c, src/testpcsc.c, src/tokenparser.l, src/utils.c,
+	  src/utils.h, src/utils/formaticc.c, src/utils/installifd.c,
+	  src/winscard.c, src/winscard_clnt.c, src/winscard_msg.c,
+	  src/winscard_msg.h, src/winscard_msg_srv.c, src/winscard_svc.c,
+	  src/winscard_svc.h: Include the COPYING file in header of file
+	  
+	  It will be easier to know the licence used by a file when used
+	  outside of pcsc-lite.
+
+2013-12-20  Ludovic Rousseau
+
+	* [r6810] src/winscard_clnt.c: SCardListReaders(): fix a memory
+	  leak in case of error
+	  
+	  Check mszReaders is valid before allocating memory.
+	  
+	  Thanks to Ignacio Casal for the bug report
+	  http://archives.neohapsis.com/archives/dev/muscle/2013-q4/0084.html
+
+2013-12-03  Ludovic Rousseau
+
+	* [r6804] splint.sh: Add header directory for sys/types.h
+	* [r6803] make-dirs: Remove very old files used to build on Solaris
+	  
+	  " Adding make-dirs plus Makefiles for certain configurations when
+	  people don't want to try and fix autoconf "
+
+2013-12-02  Ludovic Rousseau
+
+	* [r6802] src/dyn_generic.h, src/dyn_hpux.c, src/dyn_macosx.c,
+	  src/dyn_unix.c, src/readerfactory.c: Do not log a critical error
+	  if symbol IFDHCreateChannelByName is not found in a driver.
+	  
+	  Drivers using API v2 of IFDHandler (like openct-ifd.bundle) do
+	  not provide a IFDHCreateChannelByName symbol. A critical error
+	  should not be logged since it is a normal behavior.
+	  
+	  DYN_GetAddress() has a new parameter: mayfail, to indicate if
+	  dlsym(3) may fail or not.
+
+2013-10-24  Ludovic Rousseau
+
+	* [r6785] src/configfile.l: CHANNELID and DEVICENAME are both
+	  optional but not at the same time
+	  
+	  If the driver uses DEVICENAME you can ignore/unset CHANNELID. If
+	  the driver uses CHANNELID you can ignore/unset DEVICENAME. But
+	  you shall configure at least one of the two parameters.
+
 2013-10-19  Ludovic Rousseau
 
 	* [r6779] ChangeLog, configure.ac: Release 1.8.10

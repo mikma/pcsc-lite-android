@@ -1,10 +1,10 @@
 /*
- * MUSCLE SmartCard Development ( http://www.linuxnet.com )
+ * MUSCLE SmartCard Development ( http://pcsclite.alioth.debian.org/pcsclite.html )
  *
  * Copyright (C) 2006-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: pcscd.h.in 6323 2012-06-05 09:19:06Z rousseau $
+ * $Id: pcscd.h.in 6851 2014-02-14 15:43:32Z rousseau $
  */
 
 /**
@@ -30,7 +30,7 @@
 
 #define PCSCLITE_CSOCK_NAME		PCSCLITE_IPC_DIR "/pcscd.comm"
 
-#define PCSCLITE_VERSION_NUMBER		"1.8.10"	/**< Current version */
+#define PCSCLITE_VERSION_NUMBER		"1.8.11"	/**< Current version */
 #define PCSCLITE_STATUS_POLL_RATE	400000		/**< Status polling rate */
 #define PCSCLITE_LOCK_POLL_RATE		100000		/**< Lock polling rate */
 
