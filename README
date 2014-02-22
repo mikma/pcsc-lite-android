@@ -107,11 +107,11 @@ QUESTIONS:
 
 The API documentation is provided in PDF format under the docs
 directory.  For questions, please email me at:
-<David Corcoran> corcoran@linuxnet.com
+<David Corcoran> corcoran@musclecard.com
 
 On some plateforms (GNU/Linux on mips and mipsel, FreeBSD and possibly
 other *BSD suystems) you must use:
 $ ./configure LDFLAGS="-lpthread"
 
- $Id: README 2151 2006-09-06 20:02:47Z rousseau $
+ $Id: README 6851 2014-02-14 15:43:32Z rousseau $
 

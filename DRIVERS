@@ -1,10 +1,10 @@
 DRIVERS
 
-To install USB drivers, download the driver from http://www.linuxnet.com/
-and copy it to a temporary location.  After you have unarchived the files
-copy the directory to /usr/local/pcsc/drivers/.  If the directory
-/usr/local/pcsc/drivers/ does not exist create it before copying the driver
-directory to it.
+To install USB drivers, download the driver from
+http://musclecard.com/software.html and copy it to a temporary location.
+After you have unarchived the files copy the directory to
+/usr/local/pcsc/drivers/.  If the directory /usr/local/pcsc/drivers/
+does not exist create it before copying the driver directory to it.
 
 Example Mac OS X, Linux 2.4:
 
@@ -27,4 +27,4 @@ enumerate your ports on any Unix without changing the driver.
 
 Refer to the driver README for more information.
 
-$Id: DRIVERS 867 2004-05-13 13:25:06Z rousseau $
+$Id: DRIVERS 6851 2014-02-14 15:43:32Z rousseau $
