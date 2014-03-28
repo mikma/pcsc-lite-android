@@ -83,6 +83,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
+	src/auth.c \
 	src/debuglog.c \
 	src/atrhandler.c \
 	src/configfile.c \
